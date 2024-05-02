@@ -2,9 +2,9 @@ import { sql } from '@vercel/postgres';
 import type { Content } from './types';
 
 export async function getCourses(): Promise<string[]> {
-  const { rows: courses } = await sql`select distinct course from contents`;
+  const { rows: courses } = await sql<Pick<Content, 'course'>>`select distinct course from contents`;
 
-  return courses.map((value) => value.toString());
+  return courses.map(({ course }) => course);
 }
 
 export async function getContentsPreview(
@@ -16,7 +16,7 @@ export async function getContentsPreview(
     return [];
   }
 
-  const { rows: contents } = await sql`
+  const { rows: contents } = await sql<Pick<Content, 'id' | 'title' | 'summary'>>`
     select
       id, title, summary
     from contents c
@@ -24,15 +24,15 @@ export async function getContentsPreview(
       c.audience = ${audience}
       and c.course = ${course}
       and c.grade = ${grade};
-    `;
+  `;
 
-  return contents as Array<Pick<Content, 'id' | 'title' | 'summary'>>;
+  return contents;
 }
 
 export async function getContent(id: number): Promise<Content> {
   const {
     rows: [content],
-  } = await sql`
+  } = await sql<Content>`
     select
       *
     from contents c
@@ -40,13 +40,13 @@ export async function getContent(id: number): Promise<Content> {
       c.id = ${id};
   `;
 
-  return content as Content;
+  return content;
 }
 
 export async function createContent(newContent: Omit<Content, 'id'>): Promise<Content> {
   const {
     rows: [content],
-  } = await sql`
+  } = await sql<Content>`
     insert into contents
     (audience, aurthor, content, course, grade, summary, title)
     values
@@ -62,5 +62,5 @@ export async function createContent(newContent: Omit<Content, 'id'>): Promise<Co
     returning *;
   `;
 
-  return content as Content;
+  return content;
 }

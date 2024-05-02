@@ -2,6 +2,7 @@
 
 import Filters from '@/sections/Filters';
 import { getContentsPreview, getCourses } from '@/serverActions';
+import { sql } from '@vercel/postgres';
 
 interface Props {
   params: Record<string, string>;
