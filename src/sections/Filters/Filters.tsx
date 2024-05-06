@@ -46,7 +46,7 @@ const Courses: FC<Props> = ({ courses, initialAudience = null, initialCourse = n
         initialSelected={audience}
         labels={[
           { key: 'student', value: 'Alumno' },
-          { key: 'professor', value: 'Profesor' },
+          { key: 'teacher', value: 'Profesor' },
         ]}
         onSelected={setAudience}
       />

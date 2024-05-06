@@ -1,5 +1,6 @@
 import { sql } from '@vercel/postgres';
 import type { Content } from './types';
+import { redirect } from 'next/navigation';
 
 export async function getCourses(): Promise<string[]> {
   const { rows: courses } = await sql<Pick<Content, 'course'>>`select distinct course from contents`;
@@ -43,7 +44,9 @@ export async function getContent(id: number): Promise<Content> {
   return content;
 }
 
-export async function createContent(newContent: Omit<Content, 'id'>): Promise<Content> {
+export async function createContent(newContent: FormData): Promise<Content> {
+  'use server';
+
   const {
     rows: [content],
   } = await sql<Content>`
@@ -51,16 +54,16 @@ export async function createContent(newContent: Omit<Content, 'id'>): Promise<Co
     (audience, aurthor, content, course, grade, summary, title)
     values
     (
-      ${newContent.audience},
-      ${newContent.aurthor},
-      ${newContent.content},
-      ${newContent.course},
-      ${newContent.grade},
-      ${newContent.summary},
-      ${newContent.title}
+      ${newContent.get('audience')?.toString() ?? ''},
+      'anonymous',
+      ${newContent.get('content')?.toString() ?? ''},
+      ${newContent.get('course')?.toString() ?? ''},
+      ${newContent.get('grade')?.toString() ?? ''},
+      '',
+      ${newContent.get('title')?.toString() ?? ''}
     )
     returning *;
   `;
 
-  return content;
+  redirect(`/content/${content.id}`);
 }
